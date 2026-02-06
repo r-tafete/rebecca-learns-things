@@ -1,0 +1,34 @@
+WHAT IS MIDDLEWARE?
+- something that runs between the timethat the server gets the request and the time the server sends the response out to the client
+- everything you write in between getting and sending is middleware
+
+function logger(req, res, next) {
+    // req and res are request and response
+    // next is actually the function next(). you call next() at the end of your middleware function so that express knows to continue to the next action in the sequence
+}
+
+to use your function as global middleware, just call app.use(logger) at the top of server.js
+- middleware (and express in general) runs in order that its written/from top to bottom. use this if you want only some actions to utilize the middleware
+
+to use middleware in a specific function, add it as a paramter in the route handler in the server.js file
+
+How can we pass information from our middleware to our route handler?
+    - we cannot pass in some parameter in next()
+    - however, route handlers always take in request and respons bodies. so, we can set variables in our request object in the middleware
+
+
+    app.get("/users", isAdmin, (req, res) => {
+        console.log("is admin?", req.admin) // access the variable we set in the middleware
+        res.send("users list")
+    })
+
+    function isAdmin(req, res, next) {
+        if (req.query.admin === "true") { // check query param in URL from request
+            req.admin = true // set a variable in the request object
+            console.log("You are an admin");
+            next()
+        } else {
+            res.status(403).send("You are not an admin")
+        }
+    }
+
