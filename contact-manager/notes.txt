@@ -1,0 +1,36 @@
+REST APIS
+-CRUD actions
+    - get all, get single, create, update, delete
+    - get = GET. create = POST. update = PUT. delete = DELETE
+
+no semicolons in dotenv. if port not in use despite listen being triggered, check that
+to check if port in use:
+
+netstat ano | findstr :(portnumber)
+
+make sure you are importing json the right way!
+- should only be in server.js
+- app.use(express.json()), not requires or anything
+
+make sure to import and use router in your routes
+- when done, module.exports = router
+
+CONTROLLERS! i'm not sure you've seen this at work
+- way to organize routes/link them to action (db communication, process, etc)
+- routes say "if someone knocks on this door"
+- controllers say "here's how we respond"
+- routes do not contain business logic
+- controllers do not define routes
+
+WHEN TO CALL NEXT
+- so like we're not calling next() in our error handler even though is middlware
+- only call next() when you want express to keep going
+- if you finish the response (like you sent something), do not call next
+call next after:
+- normal middleware where you don't send a response/you want the next middleware to run
+
+do not call next after;
+- route handlers (the request is done, this would be a bug)
+- error handling (you're sending an error response back)
+    - EXCEPTION: the error is not being handled (you'd return next(err))
+    - EXCEPTION: you have multiple error handlers (so you're just forwarding to a diff handler)
