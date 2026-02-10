@@ -4,14 +4,17 @@ const errorHandler = require("./middleware/errorHandler.js");
 const app = express();
 const port = process.env.PORT || 3001;
 
+// don't forget to import the middleware; both baked into express and custom
+app.use(express.json());
+
 // import and use your routes
 const contactsRoutes = require('./routes/contacts.js');
+const connectDb = require("./config/dbConnection.js");
 app.use("/api/contacts", contactsRoutes);
 
+connectDb();
 
-// don't forget to import the middleware; both baked into express and custom
-// import middleware after routes so it can catch route erors
-app.use(express.json());
+// import handlers after routes so it can catch route erors
 app.use(errorHandler);
 
 

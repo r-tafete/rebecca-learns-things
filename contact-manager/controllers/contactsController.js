@@ -4,6 +4,9 @@
 // but that can get bulky, so we use another piece of middleware to help with async function and error handlintg
 const asyncHandler = require("express-async-handler");
 
+// import our contact mongo model
+const Contact = require("../models/contactModel");
+
 
 /**
  * @desc Get all contacts
@@ -11,7 +14,8 @@ const asyncHandler = require("express-async-handler");
  * @access public
  */
 const getContacts = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: "Get all contacts" });
+    const contacts = await Contact.find(); // .find() is a method exposed from Mongo after you import the schema. it is async
+    res.status(200).json(contacts);
 });
 
 /**
@@ -28,7 +32,10 @@ const createContact = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error("All fields are required");
     }
-    res.status(201).json({ message: "Create new contact" });
+
+    // if not empty, create a new Contact object
+    const contact = await Contact.create({ name, email, phone}); // these are coming from req.body -- previously destructured
+    res.status(201).json(contact);
 });
 
 
@@ -38,7 +45,13 @@ const createContact = asyncHandler(async (req, res) => {
  * @access public
  */
 const getContact = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: `Get contact ${req.params.id} `});
+    const contact = await Contact.findById(req.params.id);
+
+    if (!contact) {
+        res.status(404);
+        throw new Error("Contact not found");
+    }
+    res.status(200).json(contact);
 });
 
 /**
@@ -48,7 +61,21 @@ const getContact = asyncHandler(async (req, res) => {
  */
 
 const updateContact = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: `Update contact ${req.params.id}` });
+    // to update the contact, we must first fetch the contact
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+        res.status(404);
+        throw new Error("Contact not found");
+    }
+
+    const updatedContact = await Contact.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { returnDocument: "after" } // return the document AFTER the update is applied
+        // (by default, findByIdAndUpdate returns the doc as it was before it was updated)
+    );
+
+    res.status(200).json(updatedContact);
 });
 
 
@@ -59,7 +86,14 @@ const updateContact = asyncHandler(async (req, res) => {
  */
 
 const deleteContact = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: `Delete contact ${req.params.id}` });
+    // to delete a contact, we must first fetch the contact
+    const contact = await Contact.findById(req.params.id);
+    if (!contact) {
+        res.status(404);
+        throw new Error("Contact not found");
+    }
+    await Contact.findByIdAndDelete(req.params.id); // delete from db
+    res.status(200).json(contact);
 });
 
 module.exports = {getContacts, getContact, updateContact, createContact, deleteContact}
