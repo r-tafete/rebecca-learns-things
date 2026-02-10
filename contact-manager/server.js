@@ -9,9 +9,11 @@ app.use(express.json());
 
 // import and use your routes
 const contactsRoutes = require('./routes/contacts.js');
+const userRoutes = require("./routes/user.js")
 const connectDb = require("./config/dbConnection.js");
-app.use("/api/contacts", contactsRoutes);
 
+app.use("/api/contacts", contactsRoutes);
+app.use("/api/users", userRoutes)
 connectDb();
 
 // import handlers after routes so it can catch route erors
